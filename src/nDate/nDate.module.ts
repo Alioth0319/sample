@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DateService } from './nDate.service';
 import { DateController } from './nDate.controller';
-import { NDate } from './entities/nDate.entity';
-import { ONews } from 'src/o-news/entities/o-new.entity';
+import { NDate } from '../database/entities/nDate.entity';
+import { ONews } from 'src/database/entities/o-new.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([NDate, ONews])],

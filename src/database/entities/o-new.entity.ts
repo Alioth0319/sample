@@ -1,15 +1,17 @@
 import { Entity, Column, PrimaryColumn, OneToOne, ManyToOne, CreateDateColumn, DeleteDateColumn, JoinColumn, OneToMany } from 'typeorm';
-import { Writer } from 'src/writer/entities/writer.entity';
-import { Categories } from 'src/categories/entities/category.entity';
-import { NDate } from 'src/nDate/entities/nDate.entity'; 
-import { Feed } from 'src/feed/entities/feed.entity';
-import { Headline } from 'src/headline/entities/headline.entity';
-import { RNews } from 'src/r-news/entities/r-new.entity';
+import { Categories } from 'src/database/entities/category.entity';
+import { NDate } from 'src/database/entities/nDate.entity'; 
+import { Feed } from 'src/database/entities/feed.entity';
+import { Headline } from 'src/database/entities/headline.entity';
+import { RNews } from 'src/database/entities/r-new.entity';
 
 @Entity()
 export class ONews {
   @PrimaryColumn('uuid')
   oNews_id: string;
+
+  @Column()
+  url: string;
 
   @Column('text')
   text: string;
@@ -17,14 +19,7 @@ export class ONews {
   @CreateDateColumn()
   created_on: Date
 
-  @DeleteDateColumn({ nullable: true })
-  deleted_on: Date;
-
   /* previous relationship if any */
-
-  @ManyToOne(() => Writer, (writer) => writer.oNews)
-  @JoinColumn({ name: 'oNews_writer' })
-  writer: Writer
 
   @ManyToOne(() => Categories, (categories) => categories.oNews)
   @JoinColumn({ name: 'oNews_categories' })

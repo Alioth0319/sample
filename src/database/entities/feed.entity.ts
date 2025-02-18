@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryColumn, OneToMany } from 'typeorm';
-import { ONews } from 'src/o-news/entities/o-new.entity';
+import { ONews } from 'src/database/entities/o-new.entity';
 
 @Entity()
 export class Feed {
@@ -7,7 +7,7 @@ export class Feed {
   feed_id: string;
 
   @Column()
-  f_link: string;
+  f_url: string;
 
   @OneToMany(() => ONews, oNews => oNews.feed)
   oNews: ONews[];

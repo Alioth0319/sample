@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-import { ONews } from 'src/o-news/entities/o-new.entity';
+import { ONews } from 'src/database/entities/o-new.entity';
 
 @Entity()
 export class RNews {
@@ -11,9 +11,6 @@ export class RNews {
 
   @CreateDateColumn()
   created_on_r: Date
-
-  @UpdateDateColumn()
-  updated_on_r: Date
 
   @OneToMany(() => ONews, oNews => oNews.rNews)
   oNews: ONews[];
