@@ -32,31 +32,25 @@ import axios from 'axios';
       port: 20103,
       password: '20020103',
       username: 'postgres',
-      entities: [ONews, RNews, Feed, Categories, NDate, Headline], // here we have added user enitity in entities array
+      entities: [ONews, RNews, Feed, Categories, NDate, Headline],
       database: 'DatabaseT',
       synchronize: true,
       logging: true,
     }),
-    HttpModule,
+    HttpModule.register({}), // 确保 HttpModule 正确配置 ✅
     ONewsModule,
     CategoriesModule,
     RNewsModule,
     DateModule,
     FeedModule,
     HeadlineModule,
+    TypeOrmModule.forFeature([ONews]),
   ],
   controllers: [AppController, DeepSeekController, CrawlerController],
   providers: [
     CrawlerService,
-    {
-      provide: AXIOS_INSTANCE_TOKEN,
-      useValue: axios.create(), // 手动提供 axios 实例
-    },
     AppService,
     DeepseekService,
-    CrawlerService,
-    HttpService
   ],
-  
 })
 export class AppModule {}

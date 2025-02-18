@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, OneToOne, ManyToOne, CreateDateColumn, DeleteDateColumn, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToOne, JoinColumn, CreateDateColumn, DeleteDateColumn } from 'typeorm';
 import { Categories } from 'src/database/entities/category.entity';
 import { NDate } from 'src/database/entities/nDate.entity'; 
 import { Feed } from 'src/database/entities/feed.entity';
@@ -7,35 +7,39 @@ import { RNews } from 'src/database/entities/r-new.entity';
 
 @Entity()
 export class ONews {
-  @PrimaryColumn('uuid')
+  @PrimaryGeneratedColumn('uuid') // ✅ 自动生成 UUID
   oNews_id: string;
 
   @Column()
   url: string;
 
+  @Column()
+  title: string;
+
   @Column('text')
   text: string;
 
   @CreateDateColumn()
-  created_on: Date
+  created_on: Date;
 
-  /* previous relationship if any */
+  @DeleteDateColumn({ nullable: true })
+  deleted_on: Date;
 
   @ManyToOne(() => Categories, (categories) => categories.oNews)
   @JoinColumn({ name: 'oNews_categories' })
-  categories: Categories
+  categories: Categories;
 
   @ManyToOne(() => NDate, (nDate) => nDate.oNews)
   @JoinColumn({ name: 'oNews_date' })
-  nDate: NDate
+  nDate: NDate;
 
   @ManyToOne(() => Feed, (feed) => feed.oNews)
   @JoinColumn({ name: 'oNews_link' })
-  feed: Feed
+  feed: Feed;
 
   @OneToOne(() => Headline, (headline) => headline.oNews)
   @JoinColumn({ name: 'oNews_headline' })
-  headline: Headline
+  headline: Headline;
 
   @ManyToOne(() => RNews, (rNew) => rNew.oNews)
   @JoinColumn({ name: 'oNews_rNews' })

@@ -7,7 +7,7 @@ export class NDate {
   date_id: string;
 
   @CreateDateColumn()
-  created_on: Date
+  created_on_r: Date
 
   @UpdateDateColumn()
   updated_on_r: Date

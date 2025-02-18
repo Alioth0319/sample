@@ -14,4 +14,5 @@ export class RNews {
 
   @OneToMany(() => ONews, oNews => oNews.rNews)
   oNews: ONews[];
+  updated_on_r: Date;
 }
