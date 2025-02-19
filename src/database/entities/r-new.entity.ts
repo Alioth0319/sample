@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Entity, Column, CreateDateColumn, UpdateDateColumn, OneToMany, PrimaryGeneratedColumn, PrimaryColumn } from 'typeorm';
 import { ONews } from 'src/database/entities/o-new.entity';
 
 @Entity()

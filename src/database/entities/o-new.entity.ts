@@ -7,7 +7,7 @@ import { RNews } from 'src/database/entities/r-new.entity';
 
 @Entity()
 export class ONews {
-  @PrimaryGeneratedColumn('uuid') // ✅ 自动生成 UUID
+  @PrimaryGeneratedColumn('uuid') // 自动生成 UUID
   oNews_id: string;
 
   @Column()

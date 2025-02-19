@@ -18,10 +18,8 @@ import { NDate } from './database/entities/nDate.entity';
 import { DeepseekService } from './deepseek/deepseek.service';
 import { DeepSeekController } from 'src/deepseek/deepseek.controller';
 import { CrawlerService } from './crawler/crawler.service';
-import { HttpModule, HttpService } from '@nestjs/axios';
+import { HttpModule } from '@nestjs/axios';
 import { CrawlerController } from './crawler/crawler.controller';
-import { AXIOS_INSTANCE_TOKEN } from '@nestjs/axios/dist/http.constants';
-import axios from 'axios';
 
 @Module({
   imports: [
@@ -37,7 +35,7 @@ import axios from 'axios';
       synchronize: true,
       logging: true,
     }),
-    HttpModule.register({}), // 确保 HttpModule 正确配置 ✅
+    HttpModule.register({}),
     ONewsModule,
     CategoriesModule,
     RNewsModule,

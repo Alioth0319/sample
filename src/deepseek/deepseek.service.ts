@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import axios, { AxiosError } from 'axios';
 import { RNews } from 'src/database/entities/r-new.entity';
+import { ONews } from 'src/database/entities/o-new.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,14 +14,44 @@ export class DeepseekService {
 
   constructor(
     @InjectRepository(RNews)
-    private readonly dataController: Repository<RNews>, // 确保注入了正确的 repository
+    private readonly dataController: Repository<RNews>,
+    @InjectRepository(ONews)
+    private readonly oNewsRepository: Repository<ONews>,
   ) {
-    this.deepSeekApiKey = process.env.DEEPSEEK_API_KEY || 'sk-3f0ff213ae9447728b6c495bbba236a5'; // 从环境变量中获取 API 密钥
-    this.deepSeekApiUrl = process.env.DEEPSEEK_API_URL || 'https://api.deepseek.com/chat/completions'; // 从环境变量中获取 API URL，如果未设置则使用默认值
+    this.deepSeekApiKey = process.env.DEEPSEEK_API_KEY || 'sk-3f0ff213ae9447728b6c495bbba236a5';
+    this.deepSeekApiUrl = process.env.DEEPSEEK_API_URL || 'https://api.deepseek.com/chat/completions';
   }
 
-  // 向 DeepSeek 提问
-  async askQuestion(question: string): Promise<string> {
+  // 读取 ONews 的 text 内容
+  async getONewsText(oNewsId: string): Promise<string> {
+    try {
+      const oNews = await this.oNewsRepository.findOne({
+        where: { oNews_id: oNewsId },
+      });
+
+      if (!oNews) {
+        throw new Error(`ONews record with ID ${oNewsId} not found`);
+      }
+
+      return oNews.text;
+    } catch (error) {
+      this.logger.error(`Failed to fetch ONews text: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async askQuestion(question = "请重写一下整个文本：", oNewsId?: string): Promise<string> {
+    let fullQuestion = question;
+
+    if (oNewsId) {
+      try {
+        const oNewsText = await this.getONewsText(oNewsId);
+        fullQuestion = `${question}\n\nContext from ONews:\n${oNewsText}`;
+      } catch (error) {
+        this.logger.error(`Error merging ONews text: ${error.message}`);
+      }
+    }
+
     const headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -32,34 +63,27 @@ export class DeepseekService {
       messages: [
         {
           role: 'user',
-          content: question,
+          content: fullQuestion,
         },
       ],
     };
 
-    // 打印请求数据和头部
-    this.logger.log('Request Data:', JSON.stringify(data));
-    this.logger.log('Request Headers:', JSON.stringify(headers));
-
     try {
       const response = await axios.post(this.deepSeekApiUrl, data, { headers });
 
-      // 打印响应数据
-      this.logger.log('Response Data:', JSON.stringify(response.data));
-
-      // 确保响应数据正确并且包含 choices 和 message
-      if (response.data && response.data.choices && response.data.choices.length > 0 && response.data.choices[0].message) {
+      if (response.data?.choices?.[0]?.message) {
         const dataEntity = new RNews();
-        dataEntity.rNews_id = uuidv4();
-        dataEntity.text_r = response.data.choices[0].message.content;  // 保存回答
+        dataEntity.rNews_id = uuidv4(); // ✅ 确保主键赋值
+        dataEntity.text_r = response.data.choices[0].message.content;
         dataEntity.created_on_r = new Date();
         dataEntity.updated_on_r = new Date();
 
-        // 将数据保存到数据库
-        await this.dataController.save(dataEntity); // 修改此行为 dataController
-        return response.data.choices[0].message.content; // 返回 DeepSeek API 返回的内容
+        this.logger.log('Saving RNews entity:', JSON.stringify(dataEntity));
+        await this.dataController.save(dataEntity);
+
+        return response.data.choices[0].message.content;
       } else {
-        throw new Error('Unexpected response structure from DeepSeek API: missing "choices" or "message" field');
+        throw new Error('Unexpected response structure from DeepSeek API');
       }
     } catch (error) {
       this.handleError(error);
